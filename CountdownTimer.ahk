@@ -87,9 +87,10 @@ Gui, Add, Text, x241 y47 w53 h23 gCancelTimer Background000000 cEEEEEE Center +0
 Gui, Font, s35 cEEEEEE, DSEG7 Classic-Italic
 Gui, Add, Text, x10 y75 w280 h120 Center vTimeDisplay Background1E1E1E, 00:00:00
 
-; --- Progress bar ---
+; --- Progress bar (Added +HwndhProg and uxtheme removal to lock in dark styling) ---
 Gui, Font, s10 Normal
-Gui, Add, Progress, x3 y135 w297 h20 vProgressBar Range0-100 Background2D2D30 c007ACC
+Gui, Add, Progress, x3 y135 w297 h20 vProgressBar Range0-100 Background2D2D30 c007ACC +HwndhProg
+DllCall("uxtheme\SetWindowTheme", "Ptr", hProg, "Str", "", "Str", "")
 
 ; Window dimensions
 GuiWidth := 305
@@ -327,7 +328,7 @@ PauseTimer:
 return
 
 CancelTimer:
-    global IsRunning, IsPaused, RemainingSeconds, TotalSeconds
+    global IsRunning, IsPaused, RemainingSeconds, TotalSeconds, hProg
 
     SetTimer, CountDown, Off
     IsRunning := False
@@ -338,7 +339,13 @@ CancelTimer:
     GuiControl,, Hours,
     GuiControl,, Minutes,
     GuiControl,, Seconds,
+    
+    ; 1. Reset progress value to 0
     GuiControl,, ProgressBar, 0
+    
+    ; 2. RE-APPLY THE ORIGINAL DARK STARTUP LOGIC (Forces a clean dark-gray background re-render)
+    GuiControl, +Background2D2D30, ProgressBar
+    
     GuiControl,, TimeDisplay, 00:00:00
     GuiControl,, PauseButton, PAUSE
 return
